@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Exercícios Aula 25/09/2017</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+
+<body>
+    <div id="chart1">
+        <h1>Comparação de Bilheteria de Filmes</h1>
+    </div>
+    <script type="text/javascript">
+        function renderChart1(data, comparatorFunction) {
+            d3.select("#chart1").selectAll("div.h-bar")
+                    .data(data)
+                .enter().append("div")
+                .attr("class", "h-bar")
+                .append("span");
+            
+            d3.select("#chart1").selectAll("div.h-bar")
+                    .data(data)
+                .attr("class", "h-bar") 
+                .style("width", function (d) {
+                    return (d.Worldwide_Gross_M/2) + "px";
+                })
+                .select("span")
+                    .text(function (d) {
+                        return d.Film;
+                    });
+            if(comparatorFunction)
+                d3.select("body")
+                    .selectAll("#chart1 div.h-bar") 
+                    .sort(comparatorFunction);
+        }
+    </script>
+    <div id="chart2">
+        <h1>Comparação de Orçamentos de Filmes</h1>
+    </div>
+    <script type="text/javascript">
+        function renderChart2(data, comparatorFunction){
+            d3.select("#chart2").selectAll("div.h-bar")
+                    .data(data)
+                .enter().append("div")
+                .attr("class", "h-bar")
+                .append("span");
+
+            d3.select("#chart2").selectAll("div.h-bar")
+                    .data(data)
+                .attr("class", "h-bar")
+                .style("width", function (d) {
+                    return (d.Budget_M*4) + "px";
+                })
+                .select("span")
+                    .text(function (d) {
+                        return d.Film;
+                    });
+            if(comparatorFunction)
+                d3.select("body")
+                    .selectAll("#chart2 div.h-bar") 
+                    .sort(comparatorFunction);
+        }
+
+        var compareMovieGross = function (movie1, movie2) { 
+            return movie1.Worldwide_Gross_M < movie2.Worldwide_Gross_M?1:-1;
+        };
+
+        var compareBudget = function (movie1, movie2) { 
+            return movie1.Budget_M < movie2.Budget_M?1:-1;
+        };
+        
+        d3.json("movies.json", function(error, json){ 
+            renderChart1(json, compareMovieGross);
+            renderChart2(json, compareBudget);
+        });
+    </script>
+    <div id="chart3">
+        <h1>Comparação de Lucro de Filmes</h1>
+    </div>
+    <script type="text/javascript">
+        function renderChart3(data, comparatorFunction){
+            d3.select("#chart3").selectAll("div.h-bar")
+                    .data(data)
+                .enter().append("div")
+                .attr("class", "h-bar")
+                .append("span");
+
+            d3.select("#chart3").selectAll("div.h-bar")
+                    .data(data)
+                .attr("class", "h-bar")
+                .style("width", function (d) {
+                    return (d.Worldwide_Gross_M - d.Budget_M)/2 + "px";
+                })
+                .select("span")
+                    .text(function (d) {
+                        return d.Film;
+                    });
+            if(comparatorFunction)
+                d3.select("body")
+                    .selectAll("#chart3 div.h-bar") 
+                    .sort(comparatorFunction);
+        }
+
+        var compareMovieGross = function (movie1, movie2) { 
+            return movie1.Worldwide_Gross_M < movie2.Worldwide_Gross_M?1:-1;
+        };
+
+        var compareBudget = function (movie1, movie2) { 
+            return movie1.Budget_M < movie2.Budget_M?1:-1;
+        };
+        
+        var compareProfit = function (movie1, movie2) { 
+            return (movie1.Worldwide_Gross_M - movie1.Budget_M) < (movie2.Worldwide_Gross_M - movie2.Budget_M)?1:-1;
+        };
+
+        d3.json("movies.json", function(error, json){ 
+            renderChart1(json, compareMovieGross);
+            renderChart2(json, compareBudget);
+            renderChart3(json, compareProfit);
+        });
+    </script>
+</body>
+</html>

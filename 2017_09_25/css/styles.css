@@ -1,0 +1,31 @@
+body {
+    font-family: "helvetica"
+}
+
+h1 {
+    color: #3F3F3F;
+}
+
+.h-bar {
+    min-height: 15px;
+    min-width: 10px;
+    background-color: steelblue;
+    margin-bottom: 2px;
+    font-size: 11px;
+    color: #f0f8ff;
+    text-align: right;
+    padding-right: 2px;
+}
+
+div {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#chart1 .h-bar {
+    background-color: purple
+}
+
+#chart3 .h-bar {
+    background-color: green
+}
