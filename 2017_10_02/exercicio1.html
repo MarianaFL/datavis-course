@@ -20,10 +20,12 @@
 		d3.csv("stocks.csv", function(data){
 			// formatando nossos dados
             var dtgFormat = d3.time.format("%Y/%m/%d");
+            const firstFacebook = data[0].facebook;
+            const firstApple = data[0].apple;
             data.forEach(function(d){
                 d.date = dtgFormat.parse(d.date);
-                d.apple = +d.apple;
-                d.facebook = +d.facebook;
+                d.appleVariation = ((d.apple-firstApple)/firstApple)*100;
+                d.facebookVariation = ((d.facebook-firstFacebook)/firstFacebook)*100;
             });
 
             //criando um crossfilter
@@ -34,11 +36,11 @@
             });
 
             var appleByDayGroup = dateDim.group().reduceSum(function(d){
-                return (d.apple-113.949997)/113.949997*100;
+                return d.appleVariation;
             });
 
             var fbByDayGroup = dateDim.group().reduceSum(function(d){
-                return (d.facebook-129.229996)/129.229996*100;
+                return d.facebookVariation;
             });
 
             compositeChart.width(800)
