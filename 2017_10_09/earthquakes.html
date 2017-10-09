@@ -49,16 +49,17 @@
                 </table>
             </div>
             <script type="text/javascript">
+
             // Create the dc.js chart objects & link to divs
-            // 
             var dataTable  = dc.dataTable("#dc-table-graph");
             var magnitudeChart = dc.barChart("#magnitude-chart");
             var depthChart = dc.barChart("#depth-chart");
             var timeChart = dc.lineChart("#time-chart");
+
             // load data from a csv file
             d3.csv("earthquakes.csv", function (data) {
-              // format our data
               
+              // format our data
               var dtgFormat = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
 
               data.forEach(function(d) {
@@ -69,25 +70,23 @@
                 d.depth = d3.round(+d.depth, 0);
               })
               console.log(data);
-              // Run the data through crossfilter and load our 'facts'
 
+              // Run the data through crossfilter and load our 'facts'
                var facts = crossfilter(data);
 
               //Create dataTable dimension using the date (dtg)
-                         
-
               var dateDimension = facts.dimension(function (d){
                 return d.dtg;
               })
-               var magDimension = facts.dimension(function (d){
+
+              //Create a dimension for Magnitude
+              var magDimension = facts.dimension(function (d){
                 return d.mag;
               })
 
-               var magDimensionCount = magDimension.group();
-              //Create a dimension for Magnitude
-              
               //Create a group for Magnitude that just counts the number of elements in the group
-              
+              var magDimensionCount = magDimension.group();
+
 
               // Create a dimension for Depth
               var depthDimension = facts.dimension(function (d) {
@@ -95,7 +94,6 @@
               })
 
               //Create a group for Depth that just counts the number of elements in the group
-              
               var depthDimensionCount = depthDimension.group();
 
               // Create a dimension just for the hour from the datetime in the dataset
@@ -104,8 +102,8 @@
                 return d3.time.hour(d.dtg);
               })
 
-              var hourDimensionCount = hourDimension.group();
               //Create a group for the hour dimension that just counts the number of elements per hour
+              var hourDimensionCount = hourDimension.group();
 
               // Setup the charts
 
