@@ -28,9 +28,10 @@ function Network() {
   }
 
   function setupData(data) {
+    
     //First let's randomly dispose data.nodes (x/y) within the the width/height
     // of the visualization and set a fixed radius for now
-    data.nodes.forEach(function(n)){
+    data.nodes.forEach(function(n) {
       var randomnumber;
       // set initial x/y to values within the width/height
       // of the visualization
@@ -38,54 +39,121 @@ function Network() {
       n.y = randomnumber = Math.floor(Math.random() * height);
       // add radius to the node so we can use it later
       n.radius = 3;
-    }
+      n.linksQty = 0;
+    })  
     
     // Then we will create a map with
     // id's -> node objects
     // using the mapNodes function above and store it in the nodesMap variable.
     var nodesMap = mapNodes(data.nodes);
     
-    // Then we will switch links to point to node objects instead of id's
+    // Then we will switch links to point to node objects instead of id's 
+    // and count how many links a node has
     data.links.forEach(function(l) {
       l.source = nodesMap.get(l.source);  
       l.target = nodesMap.get(l.target);
+      l.source.linksQty += 1;
+      l.target.linksQty += 1;
     });
 
+    var circleRadius, countExtent;
+    // initialize circle radius scale
+    countExtent = d3.extent(data.nodes, function(d) {
+      return d.linksQty;
+    });
+    circleRadius = d3.scale.linear().range([5, 20]).domain(countExtent);
+    colorScale = d3.scale.linear().range(["#0058EE", "#FF238F"]).domain([1,36]);
+    data.nodes.forEach(function(n) {
+      // add radius to the node so we can use it later
+      n.radius = circleRadius(n.linksQty);
+      n.color = colorScale(n.linksQty);
+    })
     // Finally we will return the data
     return data;
   }
 
   // Mouseover tooltip function
   function showDetails(d, i) {
-    
+    var content;
+    content = '<p class="main">' + d.id + '</span></p>';
+    content += '<hr class="tooltip-hr">';
+    content += '<p class="main">' + "Number of Links: " + d.linksQty + '</span></p>';
+    tooltip.showTooltip(content, d3.event);
+
+    // highlight the node being moused over
+    return d3.select(this).style("stroke", "black").style("stroke-width", 2.0);
   }
 
   // Mouseout function
   function hideDetails(d, i) {
-    
+    tooltip.hideTooltip();
+    // watch out - don't mess with node if search is currently matching
+    node.style("stroke", function(n) {
+      return "#555";
+    }).style("stroke-width", function(n) {
+      return 1.0;
+    });
   }
 
   // enter/exit display for nodes
   function updateNodes() {
     //select all node elements in svg group of nodes
-    
+    node = nodesG.selectAll("circle.node")
+    .data(allData.nodes, function(d) {
+      return d.id;
+    });
     // set cx, cy, r attributes and stroke-width style
+    node.enter()
+    .append("circle").attr("class", "node").attr("cx", function(d) {
+      return d.x; })
+    .attr("cy", function(d) {
+      return d.y; })
+    .attr("r", function(d) {
+      return d.radius;  })
+    .style("stroke-width", 1.0)
+    .style("fill", function(d) {
+      return d.color;  });
+    node.on("mouseover", showDetails).on("mouseout", hideDetails);
   }
 
   // enter/exit display for links
   function updateLinks() {
-    //select all link elements in svg group of nodes
-    
+    link = linksG.selectAll("line.link")
+    .data(allData.links, function(d) {
+      return `${d.source.id}_${d.target.id}`; });
+    link.enter()
+    .append("line")
+    .attr("class", "link")
+    .attr("stroke", "#ddd").attr("stroke-opacity", 0.8)
+    .attr("x1", function(d) {
+      return d.source.x; })
+    .attr("y1", function(d) {
+      return d.source.y; })
+    .attr("x2", function(d) {
+      return d.target.x; })
+    .attr("y2", function(d) {
+     return d.target.y; });
   }
 
   // tick function for force directed layout
   var forceTick = function(e) {
-    
+    node.attr("cx", function(d) {
+      return d.x; })
+    .attr("cy", function(d) {
+      return d.y; });
+    link.attr("x1", function(d) {
+      return d.source.x; })
+    .attr("y1", function(d) {
+      return d.source.y; })
+    .attr("x2", function(d) {
+      return d.target.x; })
+    .attr("y2", function(d) {
+      return d.target.y;  });
   };
 
   // Starting point for network visualization
   // Initializes visualization and starts force layout
-  var network = function(selection, data) {
+  network = function(selection, data) {
     var vis;
     // format our data
     allData = setupData(data);
@@ -103,7 +171,7 @@ function Network() {
     // enter / exit for links
     updateLinks();
     // set the tick callback, charge and linkDistance
-    force.on("tick", forceTick).charge(-200).linkDistance(50);
+    force.on("tick", forceTick).charge(-400).linkDistance(100);
     // perform rendering and start force layout
     return force.start();
   };
