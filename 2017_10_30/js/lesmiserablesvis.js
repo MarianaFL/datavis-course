@@ -62,7 +62,7 @@ function Network() {
       return d.linksQty;
     });
     circleRadius = d3.scale.linear().range([5, 20]).domain(countExtent);
-    colorScale = d3.scale.linear().range(["#0058EE", "#FF238F"]).domain([1,36]);
+    colorScale = d3.scale.linear().range(["#D582FF", "#600091"]).domain([1,36]);
     data.nodes.forEach(function(n) {
       // add radius to the node so we can use it later
       n.radius = circleRadius(n.linksQty);
